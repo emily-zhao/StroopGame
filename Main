@@ -1,138 +1,194 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+var seconds = 0;
+var lives = 3;
+var score = 0;
+var background;
+var highscore = 0;
+var random;
+//These variables on lines 1-6 were made by both my collaborative partner and me
 
-namespace ConsoleApplication1
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Would you like to encrypt or decrypt?");
-            string answerRaw = Console.ReadLine();
-            string answer = answerRaw.ToLower();
+var secondOne;
+var secondTwo;
+var secondThree;
+var scoreAddition = 0;
+var check = 0; 
+//These variables on lines 8-12 were made by my collaborative partner
 
-            if (answer == "encrypt")
-            {
-                encryption();
-            }
-            else
-            {
-                decryption();
-            }
-        }
+var colorPicker;
+var wordArray = ["red", "orange", "yellow", "green", "blue", "purple"];
 
-        static void encryption()
-        {
-            Console.WriteLine("Please enter a word or phrase without any punctuation.");
-            string response = Console.ReadLine();
-            string lower = response.ToLower();
-            Console.WriteLine("Please enter a positive interger.");
-            string tempKey = Console.ReadLine();
-            int key = Convert.ToInt32(tempKey);
+onEvent("beginButton", "click", function() {
+  setScreen("gameScreen");
+  refresh();
+});
 
-            List<string> alphabet = new List<string>() { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", " " };
-            List<int> codedNumbers = new List<int>();
-            List<string> codes = new List<string>();
+onEvent("yesButton", "click", function() {
+  screenColorChange();
+  scoreFreeze();
+  checkMatch(); 
+  refresh();
+});
+//This onEvent function contains the function scoreFreeze that was made by my collaborative partner 
 
-            int count = 0;
-            foreach (char c in lower)
-            {
-                string temp = Convert.ToString(c);
-                while (temp != alphabet[count])
-                {
-                    count++;
-                }
-                codedNumbers.Add(count + key);
-                count = 0;
-            }
+onEvent("noButton", "click", function() {
+  screenColorChange();
+  scoreFreeze();
+  checkNotMatch();
+  refresh();
+});
+//This onEvent function contains the function scoreFreeze that was made by my collaborative partner 
 
-            StringBuilder code = new StringBuilder();
+onEvent("playAgainButton", "click", function() {
+  clear();
+  lives = 3;
+  score = 0;
+  setText("livesCountLabel", lives);
+  setText("scoreCountLabel", score);
+  setScreen("startScreen");
+});
 
-            foreach (int i in codedNumbers)
-            {
-                if (i > 26)
-                {
-                    int fix;
-                    fix = i % 26;
-                    code.Append(alphabet[fix]);
-                }
-                else
-                {
-                    code.Append(alphabet[i]);
-                }
-
-            }
-
-            Console.WriteLine(code);
-
-            Console.ReadLine();
-        }
-
-        static void decryption()
-        {
-            Console.WriteLine("Enter your secret code.");
-            string secretCode = Console.ReadLine();
-            Console.WriteLine("Enter the secret key.");
-            string tempKey = Console.ReadLine();
-            int secretKey = Convert.ToInt32(tempKey);
-
-            List<string> alphabet = new List<string>() { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", " " };
-            List<int> codedNumbers = new List<int>();
-            List<string> codes = new List<string>();
-
-            int count = 0;
-            foreach (char c in secretCode)
-            {
-                string temp = Convert.ToString(c);
-                while (temp != alphabet[count])
-                {
-                    count++;
-                }
-                codedNumbers.Add(count - (secretKey % 26));
-                count = 0;
-            }
-
-            StringBuilder code = new StringBuilder();
-
-            foreach (int i in codedNumbers)
-            {
-                if (i == secretKey % 26)
-                {
-                    int fix;
-                    fix = i - ((secretKey % 26) - 1);
-                    code.Append(alphabet[fix]);
-                }
-                else if (i < -26)
-                {
-                    int fix;
-                    fix = -1 * (i % 26);
-                    code.Append(alphabet[fix]);
-                }
-                else if (i > -26 && i < 0)
-                {
-                    int fix;
-                    fix = i + 26;
-                    code.Append(alphabet[fix]);
-                }
-                else if (i > 26)
-                {
-                    int fix;
-                    fix = i % 26;
-                    code.Append(alphabet[fix]);
-                }
-                else
-                {
-                    code.Append(alphabet[i]);
-                }
-
-            }
-
-            Console.WriteLine(code);
-
-            Console.ReadLine();
-        }
-    }
+function refresh() {
+  screenColorChange();
+  random = randomNumber(0,5);
+  check = 0;
+  setText("scoreCountLabel", score);
+  setText("timeCountNumberLabel", "3");
+  setText("gameArea", wordArray[random]);
+  colorPick();
+  secondOne = setTimeout(function() {
+    seconds++;
+    setText("timeCountNumberLabel", "2");
+  }, 1000);
+  secondTwo = setTimeout(function() {
+    seconds++;
+    setText("timeCountNumberLabel", "1");
+  }, 2000);
+  secondThree = setTimeout(function() {
+    seconds++;
+    zeroEffect();
+    screenColorChange();
+    setText("timeCountNumberLabel", "3");
+  }, 3000);
 }
+//This function refresh was written by my collaborative partner with the exception of line 56
+//and the function colorPick
+
+function scoreFreeze() {
+  scoreAddition = getNumber("timeCountNumberLabel");
+  clear();
+  return scoreAddition;
+}
+//This function scoreFreeze was written by my collaborative partner
+
+function clear () {
+  clearTimeout(secondOne);
+  clearTimeout(secondTwo);
+  clearTimeout(secondThree);
+}
+//This function was written by my collaborative partner
+
+function zeroEffect() {
+  updateLives();
+  refresh();
+}
+//This function zeroEffect was written by my collaborative partner
+
+function updateLives() {
+  lives = lives - 1;
+  setText("livesCountLabel", lives);
+  if (lives === 0) {
+    setScreen("scoreScreen");
+    if (score > highscore) {
+      highscore = score;
+    }
+    setText("yourScoreCountLabel", score);
+    setText("highScoreCountLabel", highscore);
+  }
+}
+//This function updateLives was written by my collaborative partner 
+
+function colorPick() {
+  colorPicker = randomNumber(0, 5);
+  if (colorPicker === 0) {
+    setProperty("gameArea", "text-color", "red");
+  } else if (colorPicker == 1) {
+    setProperty("gameArea", "text-color", "orange");
+  } else if (colorPicker == 2) {
+    setProperty("gameArea", "text-color", "yellow");
+  } else if (colorPicker == 3) {
+    setProperty("gameArea", "text-color", "green");
+  } else if (colorPicker == 4) {
+    setProperty("gameArea", "text-color", "blue");
+  } else if (colorPicker == 5) {
+    setProperty("gameArea", "text-color", "purple");
+  }
+}
+
+function checkMatch() {
+  if (getProperty("gameArea", "text-color") == "red" && random === 0 ) {
+  check = 1;
+} else if (getProperty("gameArea", "text-color") == "orange" && random == 1) {
+  check = 1;
+} else if (getProperty("gameArea", "text-color") == "yellow" && random == 2) {
+  check = 1;
+} else if (getProperty("gameArea", "text-color") == "green" && random == 3) {
+  check = 1;
+} else if (getProperty("gameArea", "text-color") == "blue" && random == 4) {
+  check = 1; 
+} else if (getProperty("gameArea", "text-color") == "purple" && random == 5) {
+  check = 1; 
+} else {
+  updateLives();
+}
+if (check === 1) {
+    score = score + scoreAddition;
+    setText("scoreCountLabel", score); 
+  }
+}
+//This function was created by me with the exception of the function updateLives which was made
+//by my collaborative partner 
+
+function checkNotMatch() {
+  if (getProperty("gameArea", "text-color") == "red" && random !== 0 ) {
+  check = 1;
+} else if (getProperty("gameArea", "text-color") == "orange" && random != 1) {
+  check = 1;
+} else if (getProperty("gameArea", "text-color") == "yellow" && random != 2) {
+  check = 1;
+} else if (getProperty("gameArea", "text-color") == "green" && random != 3) {
+  check = 1;
+} else if (getProperty("gameArea", "text-color") == "blue" && random != 4) {
+  check = 1; 
+} else if (getProperty("gameArea", "text-color") == "purple" && random != 5) {
+  check = 1; 
+} else {
+  updateLives();
+}
+if (check === 1) {
+    score = score + scoreAddition;
+    setText("scoreCountLabel", score);
+  }
+}
+//This function checkNotMatch was modified by my collaborative partner but created by me
+
+function screenColorChange() {
+  background = randomNumber(0,5);
+  if (background === 0) {
+    setProperty("backgroundArea", "background-color", "red");
+  } else if ((background == 1)) {
+    setProperty("backgroundArea", "background-color", "orange");
+  } else if ((background == 2)) {
+    setProperty("backgroundArea", "background-color", "yellow");
+  } else if ((background == 3)) {
+    setProperty("backgroundArea", "background-color", "green");
+  } else if ((background == 4)) {
+    setProperty("backgroundArea", "background-color", "blue");
+  } else if ((background == 5)) {
+    setProperty("backgroundArea", "background-color", "purple");
+  }
+}
+//My collaborative partner and I wrote screenColorChange together
+
+//The background image we used is from http://wallpapercave.com/wp/3A3nSax.gif
+
+
+
